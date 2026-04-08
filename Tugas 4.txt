@@ -1,0 +1,17 @@
+Tugas Praktikum Sistem Pakar 1
+
+Deskripsi Tugas:
+Buatlah sebuah program sistem pakar berbasis Python (Console atau GUI) yang mampu mendiagnosa kerusakan pada komputer/laptop berdasarkan gejala yang dimasukkan oleh pengguna.
+
+Kriteria Tugas:
+1. Knowledge Base (Minimal 5 Penyakit/Kerusakan): Contoh: RAM Rusak, Power Supply (PSU) Lemah, Overheat (Prosesor), VGA Bermasalah, atau Hardisk Corrupt.
+2. Mesin Inferensi: Gunakan struktur data Dictionary untuk menyimpan aturan, bukan hanya if-else panjang. Program harus bisa menangani kondisi jika gejala yang dimasukkan tidak cocok dengan kerusakan apa pun.
+3. Output: Menampilkan nama kerusakan. Menampilkan Solusi Singkat (misal: "Coba bersihkan pin RAM dengan penghapus").
+
+Upload source code dan tugas ke GitHub dengan nama repositori sebagai berikut,
+NIM-PraktikumKB-Pertemuan4
+
+Link Pengumpulan Tugas 4 Praktikum Kecerdasan Buatan Pertemuan 4
+🔗Link : https://forms.gle/tz2KXuLo71q46pv37
+
+Deadline: 13 April 2026 23.59 ‼️‼️
