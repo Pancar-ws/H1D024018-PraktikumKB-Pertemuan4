@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
+MIN_CONFIDENT_MATCH = 34.0
+
 def build_knowledge_base():
     return {
         "RAM Rusak": {
@@ -43,6 +45,14 @@ def build_knowledge_base():
             ],
             "solusi_singkat": "Segera backup data dan pertimbangkan ganti ke SSD.",
         },
+        "Motherboard Rusak": {
+            "gejala": [
+                "Komputer tidak merespon saat tombol power ditekan",
+                "Terdengar bunyi beep panjang atau pola beep tertentu saat dinyalakan",
+                "Perangkat keras lain (seperti RAM, VGA) sudah dicek dan berfungsi baik",
+            ],
+            "solusi_singkat": "Bawa ke teknisi untuk pemeriksaan lebih lanjut; kemungkinan perlu ganti motherboard.",
+        },
     }
 
 def collect_unique_symptoms(knowledge_base):
@@ -59,10 +69,19 @@ def diagnose(knowledge_base, gejala_dialami):
         cocok = sum(1 for g in data["gejala"] if g in gejala_dialami)
         if cocok > 0:
             persentase = (cocok / len(data["gejala"])) * 100
+            if persentase >= 67:
+                tingkat_keyakinan = "Tinggi"
+            elif persentase >= 34:
+                tingkat_keyakinan = "Sedang"
+            else:
+                tingkat_keyakinan = "Rendah"
             hasil_diagnosa.append(
                 {
                     "kerusakan": kerusakan,
                     "kecocokan": persentase,
+                    "jumlah_gejala_cocok": cocok,
+                    "total_gejala": len(data["gejala"]),
+                    "tingkat_keyakinan": tingkat_keyakinan,
                     "solusi_singkat": data["solusi_singkat"],
                 }
             )
@@ -97,10 +116,25 @@ class SistemPakarGUI:
         frame_gejala = tk.Frame(self.root)
         frame_gejala.pack(padx=10, pady=(0, 10), fill="both", expand=True)
 
+        canvas = tk.Canvas(frame_gejala, highlightthickness=0)
+        scrollbar = tk.Scrollbar(frame_gejala, orient="vertical", command=canvas.yview)
+        daftar_gejala = tk.Frame(canvas)
+
+        daftar_gejala.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all")),
+        )
+
+        canvas.create_window((0, 0), window=daftar_gejala, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
         for gejala in self.semua_gejala:
             var = tk.BooleanVar(value=False)
             cb = tk.Checkbutton(
-                frame_gejala,
+                daftar_gejala,
                 text=gejala,
                 variable=var,
                 anchor="w",
@@ -141,20 +175,28 @@ class SistemPakarGUI:
                 "Solusi: Gejala tidak cocok dengan database kami.\n"
                 "Coba bawa ke tempat servis terdekat."
             )
+        elif hasil_diagnosa[0]["kecocokan"] < MIN_CONFIDENT_MATCH:
+            output = (
+                "Kerusakan Belum Dapat Dipastikan.\n"
+                "Solusi: Gejala yang dipilih masih terlalu umum atau kurang spesifik.\n"
+                "Tambahkan gejala lain agar hasil diagnosa lebih akurat."
+            )
         else:
             diagnosa_utama = hasil_diagnosa[0]
             lines = [
                 "HASIL DIAGNOSA",
                 f"Diagnosa Utama: {diagnosa_utama['kerusakan']} ",
                 f"Kecocokan: {diagnosa_utama['kecocokan']:.0f}%",
+                f"Tingkat Keyakinan: {diagnosa_utama['tingkat_keyakinan']}",
+                f"Gejala Cocok: {diagnosa_utama['jumlah_gejala_cocok']} dari {diagnosa_utama['total_gejala']}",
                 f"Solusi Singkat: {diagnosa_utama['solusi_singkat']}",
             ]
             if len(hasil_diagnosa) > 1:
                 lines.append("")
                 lines.append("Kemungkinan lain:")
-                for diagnosa_lain in hasil_diagnosa[1:]:
+                for diagnosa_lain in hasil_diagnosa[1:4]:
                     lines.append(
-                        f"- {diagnosa_lain['kerusakan']} ({diagnosa_lain['kecocokan']:.0f}%)"
+                        f"- {diagnosa_lain['kerusakan']} ({diagnosa_lain['kecocokan']:.0f}%, {diagnosa_lain['tingkat_keyakinan']})"
                     )
             output = "\n".join(lines)
 
